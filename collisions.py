@@ -70,6 +70,9 @@ def ball_elastic_collision(
     mtot = m1 + m2
     c1, c2 = np.array([x1, y1]), np.array([x2, y2])
     d = np.linalg.norm(c1 - c2) ** 2
+    if d < 1e-3:
+        # For numerical stability, do not allow too little distance
+        d = 1e-3
     u1, u2 = np.array([ux1, uy1]), np.array([ux2, uy2])
     v1 = u1 - 2 * m2 / mtot * np.dot(u1 - u2, c1 - c2) / d * (c1 - c2)
     v2 = u2 - 2 * m1 / mtot * np.dot(u2 - u1, c2 - c1) / d * (c2 - c1)
