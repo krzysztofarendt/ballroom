@@ -40,24 +40,28 @@ def ball_elastic_collision(
     uy2: float,
     m1: float,
     m2: float,
-    x1: float,
-    y1: float,
-    x2: float,
-    y2: float) -> Tuple[float, float, float, float]:
-    """2D elastic collision of two balls (non-zero radius).
+    x1: int,
+    y1: int,
+    x2: int,
+    y2: int) -> Tuple[float, float, float, float]:
+    """2D elastic collision of two balls (particles with non-zero radius).
 
-    The model assumes the particles have non-zero radius.
+    The model assumes the balls have non-zero radius.
     The resulting velocities depend not only on the
     initial velocities and masses, but also on the position
     of the balls at the moment of collision.
 
     Args:
-        ux1: x-velocity of particle 1
-        uy1: y-velocity of particle 1
-        ux2: x-velocity of particle 2
-        uy2: y-velocity of particle 2
-        m1: mass of particle 1
-        m2: mass of particle 2
+        ux1: x-velocity of ball 1
+        uy1: y-velocity of ball 1
+        ux2: x-velocity of ball 2
+        uy2: y-velocity of ball 2
+        m1: mass of ball 1
+        m2: mass of ball 2
+        x1: x-coordinate of ball 1
+        y1: y-coordinate of ball 1
+        x2: x-coordinate of ball 2
+        y2: y-coordinate of ball 2
 
     Return:
         resulting velocities (vx1, vy1, vx2, vy2)
