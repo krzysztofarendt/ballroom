@@ -119,22 +119,17 @@ class Ball(pygame.sprite.Sprite):
                 other = all_balls[j]
 
                 # Conservation of momentum
-                ux1 = self.velocity[0]
-                ux2 = other.velocity[0]
-                uy1 = self.velocity[1]
-                uy2 = other.velocity[1]
+                u1 = self.velocity
+                u2 = other.velocity
                 m1 = self.mass
                 m2 = other.mass
-                x1 = self.rect.centerx
-                x2 = other.rect.centerx
-                y1 = self.rect.centery
-                y2 = other.rect.centery
-                vx1, vy1, vx2, vy2 = ball_elastic_collision(
-                    ux1, uy1, ux2, uy2, m1, m2, x1, y1, x2, y2
-                )
+                c1 = np.array([self.rect.centerx, self.rect.centery])
+                c2 = np.array([other.rect.centerx, other.rect.centery])
 
-                self.velocity = np.array([vx1, vy1])
-                other.velocity = np.array([vx2, vy2])
+                v1, v2 = ball_elastic_collision(u1, u2, m1, m2, c1, c2)
+
+                self.velocity = v1
+                other.velocity = v2
 
                 # Position correction (if overlap exists)
                 distance = np.sqrt(
