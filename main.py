@@ -21,27 +21,28 @@ screen_dim = (SCREEN_WIDTH, SCREEN_HEIGHT)
 screen = pygame.display.set_mode(screen_dim)
 
 # Generate balls
-N_BALLS = 300
-BALL_RADIUS = 7
+N_BALLS = 50
+BALL_RADIUS = 10
 
-balls = list()
 ball_group = pygame.sprite.Group()
 
 for i in range(N_BALLS):
-    balls.append(Ball(
+    b = Ball(
         BALL_RADIUS,
         random_position(screen_dim, BALL_RADIUS * 2),
         random_color(),
         screen_dim
-    ))
-    ball_group.add(balls[-1])
-
+    )
+    ball_group.add(b)
 
 # Game loop
 # Run until the user asks to quit
 running = True
 
 while running:
+
+    # Ensure program maintains FPS
+    clock.tick(FPS)
 
     # Look for exit events
     for event in pygame.event.get():
@@ -56,19 +57,16 @@ while running:
     # Fill the background with white
     screen.fill((255, 255, 255))
 
-    # Update some ball
-    for b in balls:
-        b.update(pressed_keys)
+    # Update all balls
+    for index, b in enumerate(ball_group):
+        b.update(pressed_keys, ball_group, index)
 
-    # Draw the player on the screen
-    for b in balls:
+    # Draw the ball on the screen
+    for b in ball_group:
         screen.blit(b.surf, b.rect)
 
     # Flip the display
     pygame.display.flip()
-
-    # Ensure program maintains FPS
-    clock.tick(FPS)
 
 # Done! Time to quit
 pygame.quit()
