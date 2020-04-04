@@ -136,7 +136,7 @@ class Ball(pygame.sprite.Sprite):
                     (self.rect.centerx - other.rect.centerx) ** 2 + \
                     (self.rect.centery - other.rect.centery) ** 2
                 )
-                if distance == 0:
+                if distance < 1e-3:
                     # Do not allow zero-distance
                     distance = 1e-3
                 overlap = self.radius + other.radius - distance
