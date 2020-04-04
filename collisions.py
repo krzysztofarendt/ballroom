@@ -66,4 +66,11 @@ def ball_elastic_collision(
     Return:
         resulting velocities (vx1, vy1, vx2, vy2)
     """
-    pass  # TODO
+    mtot = m1 + m2
+    c1, c2 = np.array([x1, y1]), np.array([x2, y2])
+    d = np.linalg.norm(c1 - c2) ** 2
+    u1, u2 = np.array([ux1, uy1]), np.array([ux2, uy2])
+    v1 = u1 - 2 * m2 / mtot * np.dot(u1 - u2, c1 - c2) / d * (c1 - c2)
+    v2 = u2 - 2 * m1 / mtot * np.dot(u2 - u1, c2 - c1) / d * (c2 - c1)
+
+    return (v1[0], v1[1], v2[0], v2[1])

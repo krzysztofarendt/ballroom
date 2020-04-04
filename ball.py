@@ -3,7 +3,7 @@ from typing import Tuple
 import pygame
 import numpy as np
 
-from collisions import particle_elastic_collision
+from collisions import ball_elastic_collision
 
 
 class Ball(pygame.sprite.Sprite):
@@ -125,8 +125,13 @@ class Ball(pygame.sprite.Sprite):
                 uy2 = other.velocity[1]
                 m1 = self.mass
                 m2 = other.mass
-                vx1, vy1, vx2, vy2 = \
-                    particle_elastic_collision(ux1, uy1, ux2, uy2, m1, m2)
+                x1 = self.rect.centerx
+                x2 = other.rect.centerx
+                y1 = self.rect.centery
+                y2 = other.rect.centery
+                vx1, vy1, vx2, vy2 = ball_elastic_collision(
+                    ux1, uy1, ux2, uy2, m1, m2, x1, y1, x2, y2
+                )
 
                 self.velocity = np.array([vx1, vy1])
                 other.velocity = np.array([vx2, vy2])
@@ -144,8 +149,8 @@ class Ball(pygame.sprite.Sprite):
                 dist_y = self.rect.centery - other.rect.centery
                 sin_alpha = dist_y / distance
                 cos_alpha = dist_x / distance
-                dx = int(overlap * cos_alpha) + 1
-                dy = int(overlap * sin_alpha) + 1
+                dx = int((overlap + 1) * cos_alpha)
+                dy = int((overlap + 1) * sin_alpha)
 
                 self.rect.move_ip(dx, dy)
                 other.rect.move_ip(-dx, -dy)

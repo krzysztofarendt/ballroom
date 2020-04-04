@@ -21,15 +21,15 @@ screen_dim = (SCREEN_WIDTH, SCREEN_HEIGHT)
 screen = pygame.display.set_mode(screen_dim)
 
 # Generate balls
-N_BALLS = 50
-BALL_RADIUS = 10
+N_BALLS = 30
 
 ball_group = pygame.sprite.Group()
 
 for i in range(N_BALLS):
+    radius = np.random.randint(5, 20, 1)[0]
     b = Ball(
-        BALL_RADIUS,
-        random_position(screen_dim, BALL_RADIUS * 2),
+        radius,
+        random_position(screen_dim, radius * 2),
         random_color(),
         screen_dim
     )
