@@ -149,8 +149,8 @@ class Ball(pygame.sprite.Sprite):
                 dist_y = self.rect.centery - other.rect.centery
                 sin_alpha = dist_y / distance
                 cos_alpha = dist_x / distance
-                dx = int((overlap + 1) * cos_alpha)
-                dy = int((overlap + 1) * sin_alpha)
+                dx = int((overlap + 0.5) * cos_alpha)
+                dy = int((overlap + 0.5) * sin_alpha)
 
                 self.rect.move_ip(dx, dy)
                 other.rect.move_ip(-dx, -dy)
