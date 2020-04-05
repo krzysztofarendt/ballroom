@@ -40,7 +40,10 @@ class Ball(pygame.sprite.Sprite):
         pygame.draw.circle(self.surf, color, (self.radius, self.radius), self.radius)
 
         # Transparent background
-        self.surf.set_colorkey((255, 255, 255))
+        self.surf.set_colorkey(Ball.colors['WHITE'])
+
+        # Mask used for collision detection
+        self.mask = pygame.mask.from_surface(self.surf)
 
         # Rectangle and initial position
         self.rect = self.surf.get_rect()
@@ -61,14 +64,16 @@ class Ball(pygame.sprite.Sprite):
 
     def update(self,
                pressed_keys: tuple,
-               group: pygame.sprite.Group,
-               index: int) -> None:
+               ball_group: pygame.sprite.Group,
+               index: int,
+               wall_group: pygame.sprite.Group) -> None:
         """Update sprite.
 
         Args:
             pressed_keys: tuple returned by pygame.key.get_pressed()
-            group: reference to sprite.Group containing this sprite
-            index: current's ball index in the group
+            ball_group: reference to sprite.Group containing this sprite
+            index: current's ball index in the ball_group
+            wall_group: reference to sprite.Group containing the walls
 
         Return:
             None
@@ -106,7 +111,7 @@ class Ball(pygame.sprite.Sprite):
             self.velocity[1] *= -1
 
         # Find potential rectangle-like collisions (fast search)
-        all_balls = group.sprites()
+        all_balls = ball_group.sprites()
         overlapping = self.rect.collidelistall(all_balls)
         overlapping = [x for x in overlapping if x != index]
 
@@ -149,6 +154,60 @@ class Ball(pygame.sprite.Sprite):
 
                 self.rect.move_ip(dx, dy)
                 other.rect.move_ip(-dx, -dy)
+            
+        # Check wall collision
+        all_walls = wall_group.sprites()
+        w = self.rect.collidelist(all_walls)
+
+        if w >=0:
+            # Bounce off the wall
+            wall = all_walls[w]
+            wall_point = pygame.sprite.collide_mask(self, wall)
+            
+            if wall_point is not None:
+                wall_point = (
+                    wall_point[0] + self.rect.left,
+                    wall_point[1] + self.rect.top
+                )
+
+                # Position and velocity correction
+                # Which side of the wall was hit?
+                dist_l = abs(wall.rect.left - wall_point[0])
+                dist_t = abs(wall.rect.top - wall_point[1])
+                dist_r = abs(wall.rect.right - wall_point[0])
+                dist_b = abs(wall.rect.bottom - wall_point[1])
+
+                side_list = ['left', 'top', 'right', 'bottom']
+                side_index = np.argmin(np.array([dist_l, dist_t, dist_r, dist_b]))
+                side = side_list[side_index]
+
+                if side == 'left':
+                    # Move ball right
+                    dx = wall_point[0] - self.rect.right - 1
+                    dy = 0
+                    self.velocity[0] *= -1
+                elif side == 'top':
+                    # Move ball up
+                    dx = 0
+                    dy = wall_point[1] - self.rect.bottom - 1
+                    self.velocity[1] *= -1
+                elif side == 'right':
+                    # Move ball left
+                    dx = wall_point[0] - self.rect.left + 1
+                    dy = 0
+                    self.velocity[0] *= -1
+                elif side == 'bottom':
+                    # Move ball down
+                    dx = 0
+                    dy = wall_point[1] - self.rect.top + 1
+                    self.velocity[1] *= -1
+
+                self.rect.move_ip(dx, dy)
+
+
+        for j in overlapping:
+            v = ball_wall_collision
+            self.velocity
 
         # Keep ball on the screen
         if self.rect.left < 0:

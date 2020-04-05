@@ -2,6 +2,7 @@ import pygame
 import numpy as np
 
 from ball import Ball
+from wall import Wall
 from utils import random_color, random_position
 
 
@@ -21,12 +22,12 @@ screen_dim = (SCREEN_WIDTH, SCREEN_HEIGHT)
 screen = pygame.display.set_mode(screen_dim)
 
 # Generate balls
-N_BALLS = 400
-
+N_BALLS = 1
 ball_group = pygame.sprite.Group()
 
 for i in range(N_BALLS):
-    radius = np.random.randint(5, 10, 1)[0]
+    # radius = np.random.randint(20, 20, 1)[0]
+    radius = 20
     b = Ball(
         radius,
         random_position(screen_dim, radius * 2),
@@ -34,6 +35,12 @@ for i in range(N_BALLS):
         screen_dim
     )
     ball_group.add(b)
+
+# Generate walls
+wall0 = Wall(100, 100, 200, 200)
+
+wall_group = pygame.sprite.Group()
+wall_group.add(wall0)
 
 # Game loop
 # Run until the user asks to quit
@@ -59,11 +66,15 @@ while running:
 
     # Update all balls
     for index, b in enumerate(ball_group):
-        b.update(pressed_keys, ball_group, index)
+        b.update(pressed_keys, ball_group, index, wall_group)
 
-    # Draw the ball on the screen
+    # Draw balls on the screen
     for b in ball_group:
         screen.blit(b.surf, b.rect)
+
+    # Draw walls on the screen
+    for w in wall_group:
+        screen.blit(w.surf, w.rect)
 
     # Flip the display
     pygame.display.flip()

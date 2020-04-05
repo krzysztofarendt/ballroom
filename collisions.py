@@ -3,12 +3,13 @@ import numpy as np
 
 
 def particle_elastic_collision(
-    ux1: float,
-    uy1: float,
-    ux2: float,
-    uy2: float,
-    m1: float,
-    m2: float) -> Tuple[float, float, float, float]:
+        ux1: float,
+        uy1: float,
+        ux2: float,
+        uy2: float,
+        m1: float,
+        m2: float
+    ) -> Tuple[float, float, float, float]:
     """2D elastic collision of two particles.
 
     The model assumes the particles have zero radius. The larger
@@ -34,15 +35,16 @@ def particle_elastic_collision(
 
 
 def ball_elastic_collision(
-    u1: np.array,
-    u2: np.array,
-    m1: float,
-    m2: float,
-    c1: int,
-    c2: int) -> Tuple[np.array, np.array]:
+        u1: np.array,
+        u2: np.array,
+        m1: float,
+        m2: float,
+        c1: np.array,
+        c2: np.array
+    ) -> Tuple[np.array, np.array]:
     """2D elastic collision of two balls (particles with non-zero radius).
 
-    The model assumes the balls have non-zero radius.
+    The model assumes the balls have SAME non-zero radius.
     The resulting velocities depend not only on the
     initial velocities and masses, but also on the position
     of the balls at the moment of collision.
