@@ -44,7 +44,7 @@ def ball_elastic_collision(
     ) -> Tuple[np.array, np.array]:
     """2D elastic collision of two balls (particles with non-zero radius).
 
-    The model assumes the balls have SAME non-zero radius.
+    The model assumes the balls have non-zero radius.
     The resulting velocities depend not only on the
     initial velocities and masses, but also on the position
     of the balls at the moment of collision.

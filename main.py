@@ -22,12 +22,12 @@ screen_dim = (SCREEN_WIDTH, SCREEN_HEIGHT)
 screen = pygame.display.set_mode(screen_dim)
 
 # Generate balls
-N_BALLS = 1
+N_BALLS = 50
 ball_group = pygame.sprite.Group()
 
 for i in range(N_BALLS):
     # radius = np.random.randint(20, 20, 1)[0]
-    radius = 20
+    radius = 10
     b = Ball(
         radius,
         random_position(screen_dim, radius * 2),
@@ -37,7 +37,7 @@ for i in range(N_BALLS):
     ball_group.add(b)
 
 # Generate walls
-wall0 = Wall(100, 100, 200, 200)
+wall0 = Wall(200, 200, 300, 300)
 
 wall_group = pygame.sprite.Group()
 wall_group.add(wall0)

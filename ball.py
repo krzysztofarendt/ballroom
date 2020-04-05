@@ -177,37 +177,54 @@ class Ball(pygame.sprite.Sprite):
                 dist_r = abs(wall.rect.right - wall_point[0])
                 dist_b = abs(wall.rect.bottom - wall_point[1])
 
-                side_list = ['left', 'top', 'right', 'bottom']
-                side_index = np.argmin(np.array([dist_l, dist_t, dist_r, dist_b]))
-                side = side_list[side_index]
+                side_list = np.array(['left', 'top', 'right', 'bottom'])
+                dist_all = np.array([dist_l, dist_t, dist_r, dist_b])
+                order = np.argsort(dist_all)
+                side_hit = side_list[order[0]]
 
-                if side == 'left':
+                # Corner hit?
+                corner_name = side_list[order[0:2]]
+                corner_xy = np.zeros(2)
+                if 'left' in corner_name:
+                    corner_xy[0] = wall.rect.left
+                else:
+                    corner_xy[0] = wall.rect.right
+
+                if 'top' in corner_name:
+                    corner_xy[1] = wall.rect.top
+                else:
+                    corner_xy[1] = wall.rect.bottom
+
+                ## The below code detect if the ball hits the corner of the wall.
+                ## It is not used at the moment.
+                # if abs(corner_xy[0] - self.rect.centerx) < self.radius \
+                #     and abs(corner_xy[1] - self.rect.centery) < self.radius:
+                #     corner_hit = True
+                # else:
+                #     corner_hit = False
+
+                if side_hit == 'left':
                     # Move ball right
-                    dx = wall_point[0] - self.rect.right - 1
+                    dx = wall_point[0] - self.rect.right - 2
                     dy = 0
                     self.velocity[0] *= -1
-                elif side == 'top':
+                elif side_hit == 'top':
                     # Move ball up
                     dx = 0
-                    dy = wall_point[1] - self.rect.bottom - 1
+                    dy = wall_point[1] - self.rect.bottom - 2
                     self.velocity[1] *= -1
-                elif side == 'right':
+                elif side_hit == 'right':
                     # Move ball left
-                    dx = wall_point[0] - self.rect.left + 1
+                    dx = wall_point[0] - self.rect.left + 2
                     dy = 0
                     self.velocity[0] *= -1
-                elif side == 'bottom':
+                elif side_hit == 'bottom':
                     # Move ball down
                     dx = 0
-                    dy = wall_point[1] - self.rect.top + 1
+                    dy = wall_point[1] - self.rect.top + 2
                     self.velocity[1] *= -1
 
                 self.rect.move_ip(dx, dy)
-
-
-        for j in overlapping:
-            v = ball_wall_collision
-            self.velocity
 
         # Keep ball on the screen
         if self.rect.left < 0:
