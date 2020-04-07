@@ -199,7 +199,8 @@ class Ball(pygame.sprite.Sprite):
                 else:
                     corner_xy[1] = wall.rect.bottom
 
-                # The below code detect if the ball hits the corner of the wall.
+                ## The below code detects if the ball hits the corner of the wall.
+                ## It might be usefull in the future.
                 # if abs(corner_xy[0] - self.rect.centerx) < self.radius \
                 #     and abs(corner_xy[1] - self.rect.centery) < self.radius:
                 #     corner_hit = True
