@@ -14,6 +14,7 @@ class Ball(pygame.sprite.Sprite):
         center: initial position of the ball center
         color: fill color
         screen_dim: screen dimensions in pixels
+        dissipation: dissipation of energy at each bounce (default 0)
     """
     colors = {
         'WHITE': (255, 255, 255)
@@ -23,7 +24,8 @@ class Ball(pygame.sprite.Sprite):
                  radius: int,
                  center: Tuple[int, int],
                  color: Tuple[int, int, int],
-                 screen_dim: Tuple[int, int]):
+                 screen_dim: Tuple[int, int],
+                 dissipation: float = 0.):
 
         super().__init__()
         self.screen_width = screen_dim[0]
@@ -33,6 +35,7 @@ class Ball(pygame.sprite.Sprite):
         self.radius = radius
         self.area = np.pi * self.radius ** 2
         self.mass = self.area
+        self.dissipation = dissipation
 
         # Make surface and draw circle
         self.surf = pygame.Surface((2 * self.radius, 2 * self.radius))
@@ -101,14 +104,14 @@ class Ball(pygame.sprite.Sprite):
 
         # Bounce off the screen boundaries
         if self.rect.left + self.velocity[0] < 0:
-            self.velocity[0] *= -1
+            self.velocity[0] *= -1 * (1 - self.dissipation)
         elif self.rect.right + self.velocity[0] > self.screen_width:
-            self.velocity[0] *= -1
+            self.velocity[0] *= -1 * (1 - self.dissipation)
 
         if self.rect.top + self.velocity[1] < 0:
-            self.velocity[1] *= -1
+            self.velocity[1] *= -1 * (1 - self.dissipation)
         elif self.rect.bottom + self.velocity[1] > self.screen_height:
-            self.velocity[1] *= -1
+            self.velocity[1] *= -1 * (1 - self.dissipation)
 
         # Find potential rectangle-like collisions (fast search)
         all_balls = ball_group.sprites()
@@ -131,7 +134,8 @@ class Ball(pygame.sprite.Sprite):
                 c1 = np.array([self.rect.centerx, self.rect.centery])
                 c2 = np.array([other.rect.centerx, other.rect.centery])
 
-                v1, v2 = ball_elastic_collision(u1, u2, m1, m2, c1, c2)
+                v1, v2 = ball_elastic_collision(
+                    u1, u2, m1, m2, c1, c2, self.dissipation)
 
                 self.velocity = v1
                 other.velocity = v2
@@ -154,7 +158,7 @@ class Ball(pygame.sprite.Sprite):
 
                 self.rect.move_ip(dx, dy)
                 other.rect.move_ip(-dx, -dy)
-            
+
         # Check wall collision
         all_walls = wall_group.sprites()
         w = self.rect.collidelist(all_walls)
@@ -163,7 +167,7 @@ class Ball(pygame.sprite.Sprite):
             # Bounce off the wall
             wall = all_walls[w]
             wall_point = pygame.sprite.collide_mask(self, wall)
-            
+
             if wall_point is not None:
                 wall_point = (
                     wall_point[0] + self.rect.left,
@@ -195,34 +199,35 @@ class Ball(pygame.sprite.Sprite):
                 else:
                     corner_xy[1] = wall.rect.bottom
 
-                ## The below code detect if the ball hits the corner of the wall.
-                ## It is not used at the moment.
+                # The below code detect if the ball hits the corner of the wall.
                 # if abs(corner_xy[0] - self.rect.centerx) < self.radius \
                 #     and abs(corner_xy[1] - self.rect.centery) < self.radius:
                 #     corner_hit = True
                 # else:
                 #     corner_hit = False
 
+                dx, dy = 0, 0
+
                 if side_hit == 'left':
                     # Move ball right
+                    self.velocity[0] *= -1 * (1 - self.dissipation)
                     dx = wall_point[0] - self.rect.right - 2
                     dy = 0
-                    self.velocity[0] *= -1
                 elif side_hit == 'top':
                     # Move ball up
+                    self.velocity[1] *= -1 * (1 - self.dissipation)
                     dx = 0
                     dy = wall_point[1] - self.rect.bottom - 2
-                    self.velocity[1] *= -1
                 elif side_hit == 'right':
                     # Move ball left
+                    self.velocity[0] *= -1 * (1 - self.dissipation)
                     dx = wall_point[0] - self.rect.left + 2
                     dy = 0
-                    self.velocity[0] *= -1
                 elif side_hit == 'bottom':
                     # Move ball down
+                    self.velocity[1] *= -1 * (1 - self.dissipation)
                     dx = 0
                     dy = wall_point[1] - self.rect.top + 2
-                    self.velocity[1] *= -1
 
                 self.rect.move_ip(dx, dy)
 

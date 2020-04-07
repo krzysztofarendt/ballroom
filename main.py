@@ -4,6 +4,7 @@ import numpy as np
 from ball import Ball
 from wall import Wall
 from utils import random_color, random_position
+from config import CONFIG
 
 
 # Frames per second
@@ -16,23 +17,24 @@ pygame.init()
 clock = pygame.time.Clock()
 
 # Set up the drawing window
-SCREEN_WIDTH = 800
-SCREEN_HEIGHT = 600
-screen_dim = (SCREEN_WIDTH, SCREEN_HEIGHT)
+screen_width = CONFIG['screen_width']
+screen_height = CONFIG['screen_height']
+screen_dim = (screen_width, screen_height)
 screen = pygame.display.set_mode(screen_dim)
 
 # Generate balls
-N_BALLS = 50
+n_balls = CONFIG['n_balls']
 ball_group = pygame.sprite.Group()
 
-for i in range(N_BALLS):
+for i in range(n_balls):
     # radius = np.random.randint(20, 20, 1)[0]
     radius = 10
     b = Ball(
         radius,
         random_position(screen_dim, radius * 2),
         (0, 0, 255),
-        screen_dim
+        screen_dim,
+        CONFIG['dissipation']
     )
     ball_group.add(b)
 

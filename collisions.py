@@ -40,7 +40,8 @@ def ball_elastic_collision(
         m1: float,
         m2: float,
         c1: np.array,
-        c2: np.array
+        c2: np.array,
+        dissipation: float = 0.
     ) -> Tuple[np.array, np.array]:
     """2D elastic collision of two balls (particles with non-zero radius).
 
@@ -68,5 +69,8 @@ def ball_elastic_collision(
         d = 1e-3
     v1 = u1 - 2 * m2 / mtot * np.dot(u1 - u2, c1 - c2) / d * (c1 - c2)
     v2 = u2 - 2 * m1 / mtot * np.dot(u2 - u1, c2 - c1) / d * (c2 - c1)
+
+    v1 *= 1. - dissipation / 2.
+    v2 *= 1. - dissipation / 2.
 
     return (v1, v2)
