@@ -1,6 +1,8 @@
 import pygame
 import numpy as np
+import cv2
 
+from camera import Camera
 from ball import Ball
 from wall import Wall
 from utils import random_color, random_position
@@ -21,6 +23,9 @@ screen_width = CONFIG['screen_width']
 screen_height = CONFIG['screen_height']
 screen_dim = (screen_width, screen_height)
 screen = pygame.display.set_mode(screen_dim)
+
+# Initialize camera
+cam = Camera(screen_width, screen_height)
 
 # Generate balls
 n_balls = CONFIG['n_balls']
@@ -60,11 +65,15 @@ while running:
         elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
             running = False
 
+    # Capture frame from camera and convert to surface
+    cam_frame = cam.capture_frame()
+    cam_surf = pygame.surfarray.make_surface(cam_frame)
+
+    # Draw camera frame on the screen (as the background)
+    screen.blit(cam_surf, (0, 0))
+
     # Get pressed keys
     pressed_keys = pygame.key.get_pressed()
-
-    # Fill the background with white
-    screen.fill((255, 255, 255))
 
     # Update all balls
     for index, b in enumerate(ball_group):
