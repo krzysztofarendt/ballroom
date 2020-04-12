@@ -1,3 +1,4 @@
+"""Single-process class for camera capture."""
 import numpy as np
 import cv2
 

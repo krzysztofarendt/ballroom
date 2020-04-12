@@ -1,6 +1,6 @@
 """Process-based class for camera capture.
 
-This clas is based on the `multiprocessing.Array` class.
+This class is based on the `multiprocessing.Array` class.
 It is deprecated. You should use the implementation from `camera.camera_process_shm`.
 """
 import ctypes
