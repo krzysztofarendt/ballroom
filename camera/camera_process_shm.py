@@ -1,7 +1,7 @@
 """Process-based class for camera capture.
 
 This class is based on the `shared_memory` module from `multiprocessing` (new in Python 3.8).
-This implementation is considerably faster than the one using `multiprocessing.Array`.
+This implementation is considerably faster than the previous one using `multiprocessing.Array`.
 """
 import ctypes
 import multiprocessing as mp
@@ -25,9 +25,9 @@ class CameraProcess(mp.Process):
         self.shm, self.shared_arr = self.alloc_array(width, height, self.channels)
 
     def alloc_array(self, width, height, channels):
-        a = np.zeros(shape=(width, height, channels), dtype=np.int64)
+        a = np.zeros(shape=(width, height, channels), dtype=np.uint8)
         shm = shared_memory.SharedMemory(create=True, size=a.nbytes)
-        np_array = np.ndarray(a.shape, dtype=np.int64, buffer=shm.buf)
+        np_array = np.ndarray(a.shape, dtype=np.uint8, buffer=shm.buf)
         np_array[:] = a[:]  # Copy the original data into shared memory
         logging.debug(f"Allocated shared memory: {shm}")
         return shm, np_array
@@ -63,7 +63,7 @@ class CameraProcess(mp.Process):
             # Lock not needed, because only one process writes to shared memory
             np_array = np.ndarray(
                 (self.pref_size[0], self.pref_size[1], self.channels),
-                dtype=np.int64,
+                dtype=np.uint8,
                 buffer=self.shm.buf
             )
             np_array[:] = frame[:]
@@ -71,7 +71,7 @@ class CameraProcess(mp.Process):
     def from_shared_arr(self):
         np_array = np.ndarray(
             (self.pref_size[0], self.pref_size[1], self.channels),
-            dtype=np.int64,
+            dtype=np.uint8,
             buffer=self.shm.buf
         )
         return np_array
