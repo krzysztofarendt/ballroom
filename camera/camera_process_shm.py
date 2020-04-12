@@ -1,6 +1,6 @@
 """Process-based class for camera capture.
 
-This clas is based on the `shared_memory` module from `multiprocessing` (new in Python 3.8).
+This class is based on the `shared_memory` module from `multiprocessing` (new in Python 3.8).
 This implementation is considerably faster than the one using `multiprocessing.Array`.
 """
 import ctypes
