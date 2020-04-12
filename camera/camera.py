@@ -29,7 +29,7 @@ class Camera:
             and (frame.shape[1] != self.pref_size[0]):
             frame = cv2.resize(frame, self.pref_size)
 
-        # Swap access to be compatible with pygame format (width, height, channel)
+        # Swap axes to be compatible with pygame format (width, height, channel)
         frame = np.swapaxes(frame, 0, 1)
 
         return frame
