@@ -11,7 +11,7 @@ from config import CONFIG
 
 if __name__ == "__main__":
     # Frames per second
-    FPS = 60
+    fps = CONFIG['fps']
 
     # Initialize pygame
     pygame.init()
@@ -57,7 +57,7 @@ if __name__ == "__main__":
     while running:
 
         # Ensure program maintains FPS
-        clock.tick(FPS)
+        clock.tick(fps)
 
         # Look for exit events
         for event in pygame.event.get():
