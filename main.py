@@ -1,3 +1,8 @@
+import logging
+logging.basicConfig(
+    format='[%(processName)s][%(levelname)s]: %(message)s',
+    level=logging.DEBUG)
+
 import pygame
 import numpy as np
 import cv2
@@ -14,6 +19,7 @@ if __name__ == "__main__":
     fps = CONFIG['fps']
 
     # Initialize pygame
+    logging.debug("Initializing pygame")
     pygame.init()
 
     # Clock
@@ -92,7 +98,9 @@ if __name__ == "__main__":
         pygame.display.flip()
 
     # Done! Time to quit
+    logging.debug("Quiting pygame")
     pygame.quit()
 
     # Terminate camera process
+    logging.debug("Deleting Camera instance")
     del cam

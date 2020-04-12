@@ -8,11 +8,13 @@ import multiprocessing as mp
 from multiprocessing import shared_memory
 import cv2
 import numpy as np
+import logging
 
 
 class CameraProcess(mp.Process):
 
     def __init__(self, width, height):
+        logging.debug("Initializing CameraProcess")
         super().__init__()
 
         # Preferres resolution
@@ -27,9 +29,12 @@ class CameraProcess(mp.Process):
         shm = shared_memory.SharedMemory(create=True, size=a.nbytes)
         np_array = np.ndarray(a.shape, dtype=np.int64, buffer=shm.buf)
         np_array[:] = a[:]  # Copy the original data into shared memory
+        logging.debug(f"Allocated shared memory: {shm}")
         return shm, np_array
 
     def run(self):
+        logging.debug("Run CameraProcess in a separate process")
+
         # Choose Driver Show driver and initialize
         camera_driver = cv2.CAP_DSHOW
         cap = cv2.VideoCapture(0, camera_driver)
@@ -61,7 +66,7 @@ class CameraProcess(mp.Process):
                 dtype=np.int64,
                 buffer=self.shm.buf
             )
-            np_array[:] = frame[:]  
+            np_array[:] = frame[:]
 
     def from_shared_arr(self):
         np_array = np.ndarray(
@@ -75,6 +80,7 @@ class CameraProcess(mp.Process):
 class Camera:
 
     def __init__(self, width, height):
+        logging.debug("Initializing Camera")
         self.cam_proc = CameraProcess(width, height)
         self.cam_proc.start()
         self.frame = None
@@ -84,6 +90,7 @@ class Camera:
         return self.frame
 
     def __del__(self):
+        logging.debug(f"Unlinking {self.cam_proc.shm} and terminating {self.cam_proc}")
         self.cam_proc.shm.close()
         self.cam_proc.shm.unlink()
         self.cam_proc.terminate()
