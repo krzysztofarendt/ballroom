@@ -1,85 +1,106 @@
+import logging
+logging.basicConfig(
+    format='[%(processName)s][%(levelname)s]: %(message)s',
+    level=logging.DEBUG)
+
 import pygame
 import numpy as np
+import cv2
 
+from camera import Camera
 from ball import Ball
 from wall import Wall
 from utils import random_color, random_position
 from config import CONFIG
 
 
-# Frames per second
-FPS = 60
+if __name__ == "__main__":
+    # Frames per second
+    fps = CONFIG['fps']
 
-# Initialize pygame
-pygame.init()
+    # Initialize pygame
+    logging.debug("Initializing pygame")
+    pygame.init()
 
-# Clock
-clock = pygame.time.Clock()
+    # Clock
+    clock = pygame.time.Clock()
 
-# Set up the drawing window
-screen_width = CONFIG['screen_width']
-screen_height = CONFIG['screen_height']
-screen_dim = (screen_width, screen_height)
-screen = pygame.display.set_mode(screen_dim)
+    # Set up the drawing window
+    screen_width = CONFIG['screen_width']
+    screen_height = CONFIG['screen_height']
+    screen_dim = (screen_width, screen_height)
+    screen = pygame.display.set_mode(screen_dim)
 
-# Generate balls
-n_balls = CONFIG['n_balls']
-ball_group = pygame.sprite.Group()
+    # Initialize camera
+    cam = Camera(screen_width, screen_height)
 
-for i in range(n_balls):
-    # radius = np.random.randint(20, 20, 1)[0]
-    radius = 10
-    b = Ball(
-        radius,
-        random_position(screen_dim, radius * 2),
-        (0, 0, 255),
-        screen_dim,
-        CONFIG['dissipation']
-    )
-    ball_group.add(b)
+    # Generate balls
+    n_balls = CONFIG['n_balls']
+    ball_group = pygame.sprite.Group()
 
-# Generate walls
-wall0 = Wall(200, 200, 300, 300)
+    for i in range(n_balls):
+        # radius = np.random.randint(20, 20, 1)[0]
+        radius = 10
+        b = Ball(
+            radius,
+            random_position(screen_dim, radius * 2),
+            (0, 0, 255),
+            screen_dim,
+            CONFIG['dissipation']
+        )
+        ball_group.add(b)
 
-wall_group = pygame.sprite.Group()
-wall_group.add(wall0)
+    # Generate walls
+    wall0 = Wall(200, 200, 300, 300)
 
-# Game loop
-# Run until the user asks to quit
-running = True
+    wall_group = pygame.sprite.Group()
+    wall_group.add(wall0)
 
-while running:
+    # Game loop
+    # Run until the user asks to quit
+    running = True
 
-    # Ensure program maintains FPS
-    clock.tick(FPS)
+    while running:
 
-    # Look for exit events
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-        elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
-            running = False
+        # Ensure program maintains FPS
+        clock.tick(fps)
 
-    # Get pressed keys
-    pressed_keys = pygame.key.get_pressed()
+        # Look for exit events
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                running = False
 
-    # Fill the background with white
-    screen.fill((255, 255, 255))
+        # Capture frame from camera and convert to surface
+        cam_frame = cam.capture_frame()
+        cam_surf = pygame.surfarray.make_surface(cam_frame)
 
-    # Update all balls
-    for index, b in enumerate(ball_group):
-        b.update(pressed_keys, ball_group, index, wall_group)
+        # Draw camera frame on the screen (as the background)
+        screen.blit(cam_surf, (0, 0))
 
-    # Draw balls on the screen
-    for b in ball_group:
-        screen.blit(b.surf, b.rect)
+        # Get pressed keys
+        pressed_keys = pygame.key.get_pressed()
 
-    # Draw walls on the screen
-    for w in wall_group:
-        screen.blit(w.surf, w.rect)
+        # Update all balls
+        for index, b in enumerate(ball_group):
+            b.update(pressed_keys, ball_group, index, wall_group)
 
-    # Flip the display
-    pygame.display.flip()
+        # Draw balls on the screen
+        for b in ball_group:
+            screen.blit(b.surf, b.rect)
 
-# Done! Time to quit
-pygame.quit()
+        # Draw walls on the screen
+        for w in wall_group:
+            screen.blit(w.surf, w.rect)
+
+        # Flip the display
+        pygame.display.flip()
+
+    # Done! Time to quit
+    logging.debug("Quiting pygame")
+    pygame.quit()
+
+    # Terminate camera process
+    logging.debug("Deleting Camera instance")
+    del cam
