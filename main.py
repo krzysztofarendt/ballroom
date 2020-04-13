@@ -10,8 +10,7 @@ import cv2
 from process import SharedFrame
 from camera import Camera
 from face import FaceDetector
-from ball import Ball
-from wall import Wall
+from objects import Ball, Wall
 from utils import random_color, random_position
 from config import CONFIG
 
