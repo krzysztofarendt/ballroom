@@ -10,7 +10,7 @@ import cv2
 from process import SharedFrame
 from camera import Camera
 from face import FaceDetector
-from objects import Ball, Wall
+from objects import Ball, Wall, MovingWall
 from utils import random_color, random_position
 from config import CONFIG
 
@@ -53,6 +53,9 @@ if __name__ == "__main__":
         logging.debug("Will use single-process face detector")
         face_detector = FaceDetector()
 
+    # Initialize moving wall
+    m_wall = MovingWall()
+
     # Generate balls
     n_balls = CONFIG['n_balls']
     ball_group = pygame.sprite.Group()
@@ -70,10 +73,11 @@ if __name__ == "__main__":
         ball_group.add(b)
 
     # Generate walls
-    wall0 = Wall(200, 200, 300, 300)
+    wall0 = Wall(200, 200, 300, 300)  # TODO: Automatic creation and removal of these objects
 
     wall_group = pygame.sprite.Group()
     wall_group.add(wall0)
+    wall_group.add(m_wall)  # TODO: Automatic creation and removal of these objects
 
     # Game loop
     # Run until the user asks to quit
@@ -102,6 +106,21 @@ if __name__ == "__main__":
         # Draw camera frame on the screen (as the background)
         screen.blit(cam_surf, (0, 0))
 
+        # Move face walls
+        for d in dets:
+            # Draw bounding box
+            logging.debug(f"Drawing bbox: {d}")
+            left, top, right, bottom = d[0], d[1], d[2], d[3]
+            width = right - left
+            height = bottom - top
+            color = CONFIG['colors']['green']
+            thickness = 5
+            pygame.draw.rect(screen, color, (left, top, width, height), thickness)
+
+            # Draw face wall
+            logging.debug(f"Changing face wall position to {dets[0][:2]}")
+            m_wall.update(left, top, right, bottom)
+
         # Get pressed keys
         pressed_keys = pygame.key.get_pressed()
 
@@ -116,6 +135,10 @@ if __name__ == "__main__":
         # Draw walls on the screen
         for w in wall_group:
             screen.blit(w.surf, w.rect)
+
+        # Draw moving walls on the screen
+        # TODO: Automatic creation and removal of these objects
+        screen.blit(m_wall.surf, m_wall.rect)
 
         # Flip the display
         pygame.display.flip()

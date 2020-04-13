@@ -9,7 +9,7 @@ class FaceDetectorProcess(Process):
 
     def __init__(self, shared_frame):
         super().__init__()
-        self.skip_frames = 0
+        self.skip_frames = 10
         self.shared_frame = shared_frame
         self.queue = Queue(maxsize=0)
 
