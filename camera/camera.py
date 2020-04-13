@@ -5,7 +5,10 @@ import cv2
 
 class Camera:
 
+    multiprocessing = False
+
     def __init__(self, width, height):
+
         # Preferres resolution
         self.pref_size = (width, height)
 

@@ -13,27 +13,20 @@ import logging
 
 class CameraProcess(mp.Process):
 
-    def __init__(self, width, height):
-        logging.debug("Initializing CameraProcess")
+    def __init__(self, width, height, shared_frame):
         super().__init__()
+        logging.debug(f"Initializing {self.name}")
 
         # Preferres resolution
         self.pref_size = (width, height)
         self.channels = 3
 
-        # Create shared array
-        self.shm, self.shared_arr = self.alloc_array(width, height, self.channels)
-
-    def alloc_array(self, width, height, channels):
-        a = np.zeros(shape=(width, height, channels), dtype=np.uint8)
-        shm = shared_memory.SharedMemory(create=True, size=a.nbytes)
-        np_array = np.ndarray(a.shape, dtype=np.uint8, buffer=shm.buf)
-        np_array[:] = a[:]  # Copy the original data into shared memory
-        logging.debug(f"Allocated shared memory: {shm}")
-        return shm, np_array
+        # Shared memory block
+        self.shared_frame = shared_frame
 
     def run(self):
         logging.debug("Run CameraProcess in a separate process")
+        logging.debug(f"self.shared_frame: {self.shared_frame}")
 
         # Choose Driver Show driver and initialize
         camera_driver = cv2.CAP_DSHOW
@@ -61,37 +54,23 @@ class CameraProcess(mp.Process):
 
             # Write to shared memory
             # Lock not needed, because only one process writes to shared memory
-            np_array = np.ndarray(
-                (self.pref_size[0], self.pref_size[1], self.channels),
-                dtype=np.uint8,
-                buffer=self.shm.buf
-            )
-            np_array[:] = frame[:]
-
-    def from_shared_arr(self):
-        np_array = np.ndarray(
-            (self.pref_size[0], self.pref_size[1], self.channels),
-            dtype=np.uint8,
-            buffer=self.shm.buf
-        )
-        return np_array
+            self.shared_frame.put_array(frame)
 
 
 class Camera:
 
-    def __init__(self, width, height):
+    multiprocessing = True
+
+    def __init__(self, width, height, shared_frame):
         logging.debug("Initializing Camera")
-        self.cam_proc = CameraProcess(width, height)
+        self.cam_proc = CameraProcess(width, height, shared_frame)
         self.cam_proc.start()
-        self.frame = None
+        self.shared_frame = shared_frame
 
     def capture_frame(self):
-        self.frame = self.cam_proc.from_shared_arr()
-        return self.frame
+        return self.shared_frame.get_array()
 
     def __del__(self):
-        logging.debug(f"Unlinking {self.cam_proc.shm} and terminating {self.cam_proc}")
-        self.cam_proc.shm.close()
-        self.cam_proc.shm.unlink()
+        logging.debug(f"Terminating {self.cam_proc.name}")
         self.cam_proc.terminate()
         self.cam_proc.join()
