@@ -3,7 +3,7 @@ from typing import Tuple
 import pygame
 import numpy as np
 
-from collisions import ball_elastic_collision
+from .collisions import ball_elastic_collision
 
 
 class Ball(pygame.sprite.Sprite):

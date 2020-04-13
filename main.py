@@ -7,9 +7,10 @@ import pygame
 import numpy as np
 import cv2
 
+from process import SharedFrame
 from camera import Camera
-from ball import Ball
-from wall import Wall
+from face import FaceDetector
+from objects import Ball, Wall
 from utils import random_color, random_position
 from config import CONFIG
 
@@ -32,7 +33,25 @@ if __name__ == "__main__":
     screen = pygame.display.set_mode(screen_dim)
 
     # Initialize camera
-    cam = Camera(screen_width, screen_height)
+    shared_frame = None
+    if Camera.multiprocessing is True:
+        logging.debug("Will use multiprocessing in camera recorder")
+        shared_frame = SharedFrame(screen_width,
+                                   screen_height,
+                                   CONFIG['n_channels'])
+        cam = Camera(screen_width, screen_height, shared_frame)
+    else:
+        logging.debug("Will use single-process camera recorder")
+        cam = Camera(screen_width, screen_height)
+
+    # Initialize face detector
+    if FaceDetector.multiprocessing is True:
+        logging.debug("Will use multiprocessing in face detector")
+        assert shared_frame is not None, "Shared memory block was not allocated..."
+        face_detector = FaceDetector(shared_frame)
+    else:
+        logging.debug("Will use single-process face detector")
+        face_detector = FaceDetector()
 
     # Generate balls
     n_balls = CONFIG['n_balls']
@@ -76,6 +95,10 @@ if __name__ == "__main__":
         cam_frame = cam.capture_frame()
         cam_surf = pygame.surfarray.make_surface(cam_frame)
 
+        # Detect faces
+        dets = face_detector.detect(cam_frame)
+        logging.debug(f"Faces: {dets}")
+
         # Draw camera frame on the screen (as the background)
         screen.blit(cam_surf, (0, 0))
 
@@ -101,6 +124,7 @@ if __name__ == "__main__":
     logging.debug("Quiting pygame")
     pygame.quit()
 
-    # Terminate camera process
-    logging.debug("Deleting Camera instance")
+    # Terminate processes and unlink shared memory
     del cam
+    del face_detector
+    del shared_frame
